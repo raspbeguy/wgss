@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VPN self-service : {% block title %}{% endblock %}</title>
+    <link rel="icon" href="/static/wgss.svg" />
+    <link rel="stylesheet" href="/static/css/bulma.css" />
+    <link rel="stylesheet" href="/static/css/invalid.css" />
+    <link rel="stylesheet" href="/static/css/fontawesome.css" />
+    <link rel="stylesheet" href="/static/css/brands.css" />
+    <link rel="stylesheet" href="/static/css/solid.css" />
+  </head>
+  <body{% if "username" | env("") %} class="has-navbar-fixed-top"{% endif %}>
+    {% if "username" | env("") %}
+    <nav class="navbar is-dark is-fixed-top" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <div class="navbar-item">
+          <img src="/static/wgss.svg" style="max-width: 100px; height: auto; ">
+        </div>
+        <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+      <div class="navbar-menu" id="navMenu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="/index.sh">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fas fa-list"></i>
+              </span>
+              <span>
+                Liste
+              </span>
+            </span>
+          </a>
+	  <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link" href="/add.sh">
+              <span class="icon-text">
+                <span class="icon">
+                  <i class="fas fa-plus-circle"></i>
+                </span>
+                <span>
+                  Nouveau
+                </span>
+              </span>
+            </a>
+            <div class="navbar-dropdown">
+              <a class="navbar-item" href="/add.sh">
+                <span class="icon-text">
+                  <span class="icon">
+                    <i class="fas fa-key"></i>
+                  </span>
+                  <span>
+                    Fournir une clef
+                  </span>
+                </span>
+              </a>
+              <a class="navbar-item">
+                <span class="icon-text">
+                  <span class="icon">
+                    <i class="fas fa-magic"></i>
+                  </span>
+                  <span>
+                    Génération automatique (non disponible)
+                  </span>
+                </span>
+              </a>
+            </div>
+	  </div>
+          <a class="navbar-item" href="/help.sh">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fas fa-question-circle"></i>
+              </span>
+              <span>
+                Aide
+              </span>
+            </span>
+          </a>
+	  {% if "isadmin" | env("0") | int %}
+	  <a class="navbar-item" href="/admin.sh">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fas fa-glasses"></i>
+              </span>
+              <span>
+                Admin
+              </span>
+            </span>
+          </a>
+          {% endif %}
+        </div>
+        <div class="navbar-end">
+          <a class="navbar-item" href="/logout.sh">
+            <span class="icon-text">
+              <span class="icon">
+                <i class="fas fa-sign-out-alt"></i>
+              </span>
+              <span>
+                Déconnexion
+              </span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </nav>
+    {% endif %}
+    {% block content %}{% endblock %}
+    {% if "username" | env("") %}
+    <script type="text/javascript" src="/static/js/burger.js"></script>
+    {% endif %}
+  </body>
+</html>

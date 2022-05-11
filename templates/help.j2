@@ -1,0 +1,97 @@
+{% extends "../templates/base.j2" %}
+{% block title %}Aide{% endblock %}
+{% block content %}
+    <section class="section">
+      <div class="container">
+        <div class="content">
+
+<h1>Aide</h1>
+
+<p>L'outil de self-sevice vous permet de gérer vous même vos accès au VPN Wireguard. Vous pouvez ainsi ajouter et supprimer des profils, et avoir une vue d'ensemble sur vor profils pour inspecter leur utilisation.</p>
+
+<h2>Généralités sur Wireguard</h2>
+
+<p>Le concept de base pour comprendre Wireguard est la notion de pairs. Pour que deux machines puissent établir un tunnel chiffré Wireguard l'une vers l'autre, il est nécessaire que chacune de ces machines autorise l'autre à lui parler. Wireguard formalise cela sous forme de liste de pairs : une machine n'est capable d'établir un tunnel qu'avec un pair qui figure dans sa liste.</p>
+
+<p>La connexion à Wireguard est à base de clef publiques et privées. Chaque machine possède une clef privée, et la clef publique dérivée de cette clef privée doit être communiquée à tous ses pairs. Réciproquement, la machine possède les clefs publiques dérivées des clef privées de tous ses pairs.</p>
+
+<p>Ce fonctionnement est assez similaire à celui d'SSH. Avant de se connecter à un serveur SSH, il est nécessaire de générer une paire de clefs et d'envoyer la clef publique au serveur distant (à ajouter au fichier <code>authorized_keys</code> distant. Réciproquement, lors de la première connexion, il est demander d'autoriser la clef publique du serveur (après quoi cette clef sera ajoutée au fichier <code>known_hosts</code>.</p>
+
+<p>Wireguard diffère de SSH par le fait qu'il n'y a pas de notion de client ou serveur mais de pairs, et que l'équivalent des informations contenues dans les fichiers <code>authorized_keys</code> et <code>known_hosts</code> sont en fait configurés au même endroit chez les deux pairs.</p>
+
+<h2>FAQ</h2>
+
+<h3>Comment générer un profil ?</h3>
+
+<p>Ça se passe sur la page <a href="add.sh">Nouveau</a> qui permet de créer un profil et de télécharger la configuration à fournir à Wireguard sur l'appareil devant se connecter au VPN. À partir de là, deux possibilités :</p>
+
+<h4>Fournir une clef publique générée par l'utilisateur</h4>
+
+<p>Cette solution nécessite la création en amont d'une paire de clef dans un terminal :</p>
+
+<pre>
+wg genkey | tee private.key | wg pubkey | tee public.key
+</pre>
+
+<p>La clef publique à fournir se trouve dans le fichier <code>public.key</code>.</p>
+
+<article class="message is-info">
+  <div class="message-body">
+    <p>Cette solution est la plus sécurisée, car elle n'implique à aucum moment la saisie d'une clef privée dans le navigateur.</p>
+    <p>À l'issue de cette procédure, dans le fichier téléchargé, il est nécessaire de compléter la valeur du champ <code>PrivateKey</code> à l'aide de la clef privée contenue dans le fichier <code>private.key</code>.</p>
+  </div>
+</article>
+
+<h4>Laisser le site générer une paire de clef</h4>
+
+<p>Le bouton "Générer une paire de clef" permet le téléchargement d'un fichier de configuration pré-rempli (y compris la clef privée).</p>
+
+<article class="message is-warning">
+  <div class="message-body">
+    <p>Afin d'éviter d'envoyer la clef privée sur le réseau, la génération du fichier de configuration est effectuée entièrement dans le navigateur à l'aide de JavaScript. Malgré cette précaution, cette solution reste globalement moins sûre que la première car elle dépend de la robustesse de JavaScript.</p>
+  </div>
+</article>
+
+<h3>Comment révoquer un profil ?</h3>
+
+Il suffit de supprimer le profil dans la page <a href=/index.sh>Liste</a>.
+
+<h3>Est-il possible de télécharger à nouveau la configuration d'un profil ?</h3>
+
+<p>Il est possible de télécharger une configuration incomplète, c'est à dire avec un champ <code>PrivateKey</code> vide. La raison est qu'aucune clef privée de profils utilisateurs n'est stockée sur le serveur, pour des raisons de sécurité. Même si le profil a été généré à partir d'une paire de clef générée par le navigateur, la clef privée du profil n'a jamais été communiquée au serveur et il est donc impossible de la récupérer en cas de perte.</p>
+
+<p>Les fichiers de configurations se présentent sous cette forme :</p>
+
+<pre>
+[Interface]
+PrivateKey = **clef privée**
+Address = **Adresse IP appartenant à {{ WG_NET }}**
+DNS = {{ WG_DNS }}
+
+[Peer]
+PublicKey = {{ WG_PUBKEY }}
+Endpoint = {{ WG_ENDPOINT }}
+AllowedIPs = {{ WG_NET }}, {{ WG_DEST_NET }}
+PersistentKeepalive = 25
+</pre>
+
+<h3>Un profil peut-il être utilisé par plusieurs appareils en même temps ?</h3>
+
+<p>Non. Si la même configuration est utilisée en même temps par deux équipements, il y aura un conflit de pairs et le comportement de wireguard sera imprévisible. Il est nécessaire de créer un profil par équipement, ou bien s'assurer de déconnecter un équippement avant de connecter un autre.</p>
+
+<h3>Une paire de clef peut-elle être utilisée pour plusieurs profils ?</h3>
+
+<p>Non, car Wireguard définit un pair uniquement par sa clef publique. Par conséquent si plusieurs profils utilisaient la même paire de clef, ils définiraient le même pair, provoquant les même conflits que l'usage du même profil par plusieurs appareils.</p>
+
+<h3>Est-il possible de changer l'adresse IP d'un profil ?</h3>
+
+<p>Non, car Wireguard refusera de relayer des packets venant d'une adresse autre que celle du pair associé au profil, et il n'existe pour l'instant pas de moyen de modifier un profil.</p>
+
+<h3>Comment installer Wireguard sur un appareil ?</h3>
+
+<p>Toutes les options sont décrites sur <a href="https://www.wireguard.com/install/">le site de Wireguard</a>.</p>
+
+        </div>
+      </div>
+    </section>
+{% endblock %}

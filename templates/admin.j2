@@ -1,0 +1,178 @@
+{% extends "../templates/base.j2" %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Administration</h1>
+        <h2 class="subtitle is-5">Utilisateurs</h2>
+        <div class="box">
+          <form action="/index.sh" method="get">
+            <div class="field has-addons">
+              <div class="control has-icons-left">
+                <div class="select">
+                  <select id="user" name="user">
+                    {% for user in ("userlist" | env).split(",") %}
+                    <option value="{{ user }}">{{ user }}</option>
+                    {% endfor %} 
+                  </select>
+                </div>
+                <div class="icon is-small is-left">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-link">
+                  Administrer
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <h2 class="subtitle is-5">Statistiques</h2>
+
+        <div class="box">
+          <nav class="level">
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading">Utilisateurs</p>
+                <p class="title">{{ stats.activeusers }}/{{ ("userlist" | env).split(",") | length }}</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading">Connexions</p>
+                <p class="title">{{ stats.upcount }}</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading">Reçu</p>
+                <p class="title">{{ stats.rxsum | prettysize }}</p>
+              </div>
+            </div>
+            <div class="level-item has-text-centered">
+              <div>
+                <p class="heading">Envoyé</p>
+                <p class="title">{{ stats.txsum | prettysize }}</p>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <h2 class="subtitle is-5">Profils connectés</h2>
+
+        <div id="connexions">
+          <div class="field">
+            <label class="label">Tri</label>
+            <div class="control">
+              <div class="buttons">
+                <button class="button sort" data-sort="user">Utilisateur</button>
+                <button class="button sort" data-sort="name">Profil</button>
+                <button class="button sort" data-sort="ip">IP</button>
+                <button class="button sort" data-sort="endpoint">Origine</button>
+                <button class="button sort" data-sort="date">Date</button>
+                <button class="button sort" data-sort="rx">Reçu</button>
+                <button class="button sort" data-sort="tx">Envoyé</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="table-container">
+              <table class="table is-hoverable is-fullwidth">
+                <thead>
+                  <tr>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-user"></i></span>
+                        <span>Utilisateur</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-key"></i></span>
+                        <span>Profil</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-network-wired"></i></span>
+                        <span>IP</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-laptop-house"></i></span>
+                        <span>Origine</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                        <span>Création</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-download"></i></span>
+                        <span>Reçu</span>
+                      </span>
+                    </th>
+                    <th>
+                      <span class="icon-text">
+                        <span class="icon"><i class="fas fa-upload"></i></span>
+                        <span>Envoyé</span>
+                      </span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="list">
+                  {% for peer in peers if peer.up %}
+                  <tr>
+                    <td class="user">
+                      <a href="/index.sh?user={{ peer.user }}">{{ peer.user }}</a>
+                    </td>
+                    <td class="name">
+                      {{ peer.name }}
+                    </td>
+                    <td class="ip">
+                      {{ peer.ip }}
+                    </td>
+                    <td class="endpoint">
+                      {{ peer.endpoint }}
+                    </td>
+                    <td class="date num">
+                      <span data-value="{{ peer.creation }}">{{ (peer.creation | date).strftime('%d/%m/%Y %H:%M:%S') }}</span>
+                    </td>
+                    <td class="rx num">
+                      <span data-value="{{ peer.rx }}">{{ peer.rx | prettysize }}</span>
+                    </td>
+                    <td class="tx num">
+                      <span data-value="{{ peer.tx }}">{{ peer.tx | prettysize }}</span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/1.5.0/list.min.js"></script>
+    <script>
+      var options = {
+        valueNames: [
+          'user',
+          'name',
+          'ip',
+          'endpoint',
+          'date',
+          'rx',
+          'tx'
+        ]
+      };
+      var connList = new List('connexions', options);
+    </script>
+{% endblock %}

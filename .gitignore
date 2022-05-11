@@ -1,0 +1,5 @@
+css/
+webfonts/
+cgi-bin/test.sh
+config.sh
+__pycache__/

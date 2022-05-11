@@ -1,0 +1,51 @@
+{% extends "../templates/base.j2" %}
+{% block title %}Authentification{% endblock %}
+{% block content %}
+    <section class="section">
+      <div class="container">	
+        <h1 class="title">Authentification</h1>
+        <div class="columns">
+          <div class="column">
+            <article class="message">
+              <div class="message-header">
+                <p>Bienvenue dans le self-service VPN</p>
+              </div>
+              <div class="message-body">
+                Cette page vous permet de gérer vous-même vos profils de connexion Wireguard.
+                <br>
+                Il est nécessaire de se connecter pour y accéder.
+              </div>
+            </article>
+          </div>
+          <div class="column is-flex-desktop">
+            <div class="box">
+              <form action="" method="post">
+                <div class="field">
+                  <p class="control has-icons-left">
+                    <input id="username" name="username" class="input" type="text" placeholder="Utilisateur">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-user"></i>
+                    </span>
+                  </p>
+                </div>
+                <div class="field">
+                  <p class="control has-icons-left">
+                    <input id="password" name="password" class="input" type="password" placeholder="Mot de passe">
+                    <span class="icon is-small is-left">
+                      <i class="fas fa-lock"></i>
+                    </span>
+                  </p>
+                </div>
+                <input id="target" name="target" type="hidden" value="{{ "AUTH_TARGET" | env("/index.sh") }}">
+                <div class="field">
+                  <div class="control">
+                    <button type="submit" class="button is-primary">Connexion</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+{% endblock %} 

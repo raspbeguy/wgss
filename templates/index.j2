@@ -1,0 +1,188 @@
+{% extends "../templates/base.j2" %}
+{% block title %}Liste des profils{% endblock %}
+{% block content %}
+    <section class="section">
+      <div class="container">
+        <h1 class="title">Liste des profils VPN</h1>
+
+        {% if name != ("username" | env) %}
+        <article class="message is-warning">
+          <div class="message-header">
+            <p>Vue administrateur de {{ name }}</p>
+            <a class="button is-small" href="/index.sh">
+              <span class="icon is-small">
+                <i class="fas fa-sign-out-alt"></i>
+              </span>
+              <span>Sortir</span>
+            </a>
+          </div>
+          <div class="message-body">
+            <div class="block">
+              <p>Vous êtes en train de visionner un autre utilisateur.</p>
+            </div>
+            <div class="block">
+              <p class="buttons">
+                <a class="button is-warning" href="/add.sh?user={{ name }}">
+                  <span class="icon">
+                    <i class="fas fa-key"></i>
+                  </span>
+                  <span>Fournir une clef</span>
+                </a>
+                <a class="button is-warning" href="/wizard.sh?user={{ name }}" disabled>
+                  <span class="icon">
+                    <i class="fas fa-magic"></i>
+                  </span>
+                  <span>Automagique</span>
+                </a>
+              </p>
+            </div>
+          </div>
+        </article> 
+        {% endif %}
+
+        <div class="box">
+          {% for peer in peers %}
+          <article class="media">
+            <figure class="media-left">
+              <p class="image is-64x64">
+                <span class="icon is-large{% if peer.up %} has-text-success{% endif %}">
+                  <i class="fas fa-3x fa-key"></i>
+                </span>
+              </p>
+            </figure>
+            <div class="media-content">
+              <nav class="level">
+                <div class="level-left">
+                  <div class="level-item">
+                    <p class="title is-5">{{ peer.name }}</p>
+                  </div>
+                  <div class="level-item">
+                    <div class="tags">
+                      {% if ("HTTP_X_FORWARDED_FOR" | env) == peer.ip %}
+                      <span class="tag is-success">Cet appareil</span>
+                      {% endif %}
+                      {% if peer.up %}
+                      <span class="tag is-success is-light">Connecté</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+                <div class="level-right">
+                  <div class="level-item">
+                    <input class="input is-small" value="{{ peer.pubkey }}" onClick="this.select();" readonly>
+                  </div>
+                </div>
+              </nav>
+
+              <div class="columns">
+                <div class="column">
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Ajoutée</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="le {{ (peer.creation | date).strftime('%d/%m/%Y %H:%M:%S') }} (il y a {{ peer.creation | reldate }})" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Utilisée</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="le {{ (peer.latest | date).strftime('%d/%m/%Y %H:%M:%S') }} (il y a {{ peer.latest | reldate }})" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="column">
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Adresse</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="{{ peer.ip }}" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Origine</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="{{ peer.endpoint }}" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="column">
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Envoyé</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="{{ peer.tx | prettysize }}" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field is-horizontal">
+                    <div class="field-label is-small">
+                      <label class="label">Reçu</label>
+                    </div>
+                    <div class="field-body">
+                      <div class="field">
+                        <p class="control">
+                          <input class="input is-static is-small" value="{{ peer.rx | prettysize }}" readonly>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+ 
+                </div>
+              </div>
+            </div>
+            <div class="media-right">
+              <nav class="level">
+                <div class="level-left">
+                  <div class="level-item">
+                    <a class="button is-link is-small" title="Télécharger la configuration" href="/userconf.sh?profile={{ peer.name }}{% if name != ("username" | env) %}&user={{ name }}{% endif %}">
+                      <span class="icon is-small"><i class="fas fa-file-download"></i></span>
+                    </a>
+                  </div>
+                  <div class="level-item">
+                    <a class="button is-danger is-small" onclick="return confirm('Voulez-vous vraiment supprimer le profil {{ peer.name }} ?');" {% if ("HTTP_X_FORWARDED_FOR" | env) == peer.ip %}title="Vous êtes en train d'utiliser ce profil !" disabled{% else %}title="Supprimer"{% endif %} href="/delete.sh?profile={{ peer.name }}{% if name != ("username" | env) %}&user={{ name }}{% endif %}">
+                      <span class="icon is-small"><i class="fas fa-trash-alt"></i></span>
+                    </a>
+                  </div>
+                </div>
+              </nav>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+{% endblock %}

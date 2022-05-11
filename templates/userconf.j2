@@ -1,0 +1,10 @@
+[Interface]
+PrivateKey = 
+Address = {{ "ip" | env("") }}
+DNS = {{ "WG_DNS" | env("8.8.8.8") }}
+
+[Peer]
+PublicKey = {{ "WG_PUBKEY" | env("") }}
+Endpoint = {{ "WG_ENDPOINT" | env("") }}
+AllowedIPs = {{ "WG_NET" | env("") }}, {{ "WG_DEST_NET" | env("") }}
+PersistentKeepalive = 25

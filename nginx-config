@@ -1,0 +1,24 @@
+server {
+  listen 80;
+  listen [::]:80;
+  server_name wgss.example.net;
+
+  root /opt/wgss/cgi-bin;
+  index index.sh;
+  charset UTF-8;
+
+  rewrite  ^/$  /index.sh permanent;
+
+  location = /favicon.ico { access_log off; log_not_found off; }
+
+  location /static/ {
+    root /opt/wgss;
+  }
+
+  location / {
+    gzip off;
+    fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+    include /etc/nginx/fastcgi_params;
+    fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+  }
+}
